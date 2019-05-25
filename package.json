@@ -11,11 +11,13 @@
     "type": "git",
     "url": "git+https://github.com/belbin09/comp-2068-blog.git"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/belbin09/comp-2068-blog/issues"
   },
-  "homepage": "https://github.com/belbin09/comp-2068-blog#readme"
+  "homepage": "https://github.com/belbin09/comp-2068-blog#readme",
+  "dependencies": {
+    "express": "^4.17.0"
+  }
 }
