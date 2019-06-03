@@ -1,9 +1,12 @@
 extends ../layouts/main.pug
 
 block globals
-  - const title = "Regular Chopper Blog"
+  - title = "The Adventure of a Lifetime"
 
 block content
-  h1#header= title
 
-  p.intro-text.second-class(data-attr="my value") Please Pile Various Edible Items On To A Vast Dough Circle
+  header.home-cta
+    h1
+      = title
+      br
+      small It was a rainy day in Pizzaville...
