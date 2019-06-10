@@ -18,7 +18,7 @@ const BlogSchema = new mongoose.Schema({
   timestamps: true
 });
 
-//Query helper
+// Query helper
 BlogSchema.query.drafts = function () {
   return this.where({status: 'DRAFT'
   });

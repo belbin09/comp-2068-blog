@@ -10,7 +10,33 @@ mongoose.connect(process.env.DB_URI, {
 }).catch(err => console.log(`ERROR: ${err}`));
 
 const express = require('express');
+
 const app = express();
+
+// Adding cookies and sessions support to our app
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const flash = require('connect-flash');
+
+app.use(cookieParser());
+
+app.use(session({
+  secret: (process.env.secret || 'boorakacha'),
+  cookie: {
+    max: 10800000
+  },
+  resave: true,
+  saveUninitialized: true
+}));
+
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.flash = res.locals.flash || {};
+  res.locals.flash.success = req.flash('success') || null;
+  res.locals.flash.error = req.flash('error') || null;
+
+  next();
+});
 
 //Body parser which will make reading request bodies MUCH easier
 const bodyParser = require('body-parser');

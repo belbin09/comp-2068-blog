@@ -1,4 +1,5 @@
 extends ../layouts/main.pug
+
 block content
   .container
     header
@@ -10,6 +11,7 @@ block content
           tr
             th Title
             th Status
+            th Actions
 
         tbody
           each blog in blogs
@@ -17,3 +19,9 @@ block content
               td
                 a(href=`/blogs/${blog.id}`)= blog.title
               td= blog.status
+              td
+                a(href=`/blogs/${blog.id}/edit`) edit
+                = ` | `
+                form.destroy(action=`/blogs/destroy`, method="POST" onsubmit=`return confirm("Are you sure you want to delete the blog?")`)
+                  input(type="hidden", name="id", value=blog.id)
+                  input(type="submit", value="delete")
