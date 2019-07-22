@@ -19,7 +19,9 @@ exports.authenticate = (req, res) => {
           "bobthebuilder", 
           {expiresIn: "1h"}
         );
-        res.cookie('token', token, {httpOnly:true});
+        res.cookie('token', token, {httpOnly:true})
+        .status(201)
+        .send({ success: "Authenticated successfully" });
       } else {
         res.json({error: "Your credentials do not match"});
       }
