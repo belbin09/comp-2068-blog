@@ -1,78 +1,101 @@
-require('dotenv').config();
+// Our dotenv
+require("dotenv").config();
 
-const mongoose = require('mongoose');
-mongoose.connect(process.env.DB_URI, {
-  auth: {
-    user: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD
-  },
-  useNewUrlParser: true
-}).catch(err => console.log(`ERROR: ${err}`));
+// Connecting to MongoDB cluster with Mongoose
+const mongoose = require("mongoose");
+mongoose
+ .connect(process.env.DB_URI, {
+   auth: {
+     user: process.env.DB_USER,
+     password: process.env.DB_PASS
+   },
+   useNewUrlParser: true
+ })
+ .catch(err => console.error(`ERROR: ${err}`));
 
-const express = require('express');
+// Our imported libraries
+const express = require("express");
 
+// Assigning Express to an app contstant
 const app = express();
 
-// Adding cookies and sessions support to our app
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
-const flash = require('connect-flash');
-
+// Adding cookie and session support to our application
+const cookieParser = require("cookie-parser");
+const session = require("express-session");
+const flash = require("connect-flash");
 app.use(cookieParser());
-
-app.use(session({
-  secret: (process.env.secret || 'boorakacha'),
-  cookie: {
-    max: 10800000
-  },
-  resave: true,
-  saveUninitialized: true
-}));
-
+app.use(
+ session({
+   secret: process.env.secret || "boorakacha",
+   cookie: {
+     maxAge: 10800000
+   },
+   resave: true,
+   saveUninitialized: true
+ })
+);
 app.use(flash());
 app.use((req, res, next) => {
-  res.locals.flash = res.locals.flash || {};
-  res.locals.flash.success = req.flash('success') || null;
-  res.locals.flash.error = req.flash('error') || null;
+ debugger;
+ res.locals.flash = res.locals.flash || {};
+ res.locals.flash.success = req.flash("success") || null;
+ res.locals.flash.error = req.flash("error") || null;
 
-  next();
+ next();
 });
 
-//Body parser which will make reading request bodies MUCH easier
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+// Our authentication helper
+const jwt = require("jsonwebtoken");
+const isAuthenticated = req => {
+ const token =
+   req.cookies.token ||
+   req.body.token ||
+   req.query.token ||
+   req.headers["x-access-token"];
 
-// our views
-const path = require('path');
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-app.use('/css', express.static('assets/stylesheets'));
-app.use('/js', express.static('assets/javascripts'));
-app.use('/images', express.static('assets/images'));
+ if (req.session.userId) return true;
+ if (!token) return false;
 
-// Our Authenication Helper stuff utility things
-const isAuthenticated = (req) => {
-  return req.session && req.session.userId;
+ jwt.verify(token, "bobthebuilder", function(err, decoded) {
+   if (err) return false;
+   return true;
+ });
 };
 
 app.use((req, res, next) => {
-  req.isAuthenticated = () => {
-    if (!isAuthenticated(req)) {
-      req.flash('error', 'You are not permitted to do this action.');
-      res.redirect('/');
-    }
-  }
+ req.isAuthenticated = () => {
+   if (!isAuthenticated(req)) return false;
 
-  res.locals.isAuthenticated = isAuthenticated(req);
-  next();
+   return true;
+ };
+
+ res.locals.isAuthenticated = isAuthenticated(req);
+ next();
 });
+// End of our authentication helper
 
-// our routes
-const routes = require('./routes.js');
-app.use('/', routes);
+// This maintains our home path
+const path = require("path");
 
-const port = process.env.PORT || 4000;
-app.listen(port, () => console.log(`Listening on port ${port}`));
+// Body parser which will make reading request bodies MUCH easier
+const bodyParser = require("body-parser");
+app.use(bodyParser.json());
+app.use(
+ bodyParser.urlencoded({
+   extended: true
+ })
+);
+
+// Our Views
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "pug");
+app.use("/css", express.static("assets/stylesheets"));
+app.use("/js", express.static("assets/javascripts"));
+app.use("/images", express.static("assets/images"));
+
+// Our routes
+const routes = require("./routes.js");
+app.use("/", routes);
+
+// Starting our server on port 4000
+app.listen(process.env.PORT || 4000, () => console.log("Listening on 4000"));
